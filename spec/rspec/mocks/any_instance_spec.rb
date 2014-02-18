@@ -119,6 +119,13 @@ module RSpec
             expect(foo.dup.concat 'bar').to eq 'foobar'
           end
 
+          it 'handles stub with prepend', :if => (RUBY_VERSION.to_i >= 2) do
+            sub_class.class_eval { prepend Module.new { def foo; 'foo' + super; end; } }
+            expect(sub_class.new.foo).to eq 'foobar'
+            sub_class.any_instance.stub(:foo) { 'baz' }
+            expect(sub_class.new.foo).to eq 'foobaz'
+          end
+
           it 'handles stubbing on super and subclasses' do
             super_class.any_instance.stub(:foo)
             sub_class.any_instance.stub(:foo).and_return('baz')
